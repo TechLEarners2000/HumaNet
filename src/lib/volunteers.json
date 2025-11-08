@@ -1,0 +1,17 @@
+[
+  {
+    "id": "volunteer-1762585985",
+    "name": "testvolunteer",
+    "email": "volunteer@example.com",
+    "password": "volunteer123",
+    "role": "volunteer",
+    "verified": true,
+    "phone": "9876543210",
+    "location": {
+      "lat": 10.92470075052422,
+      "lng": 77.03855808071333
+    },
+    "rating": 4.5,
+    "available": true
+  }
+]
