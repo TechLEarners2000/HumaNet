@@ -5,7 +5,7 @@ import { getFirestore } from "firebase/firestore";
 
 // TODO: Add your own Firebase configuration from your Firebase project settings
 const firebaseConfig = {
-  apiKey: "AIzaSyALN7uKSZXPyg6V5_6rf_Qs2wM3Lyxhv8c",
+  apiKey: "YOUR_API_KEY",
   authDomain: "humanet-techlearners.firebaseapp.com",
   projectId: "humanet-techlearners",
   storageBucket: "humanet-techlearners.firebasestorage.app",
