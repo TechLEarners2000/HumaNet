@@ -35,6 +35,7 @@ const Requester = () => {
   const [nearbyVolunteer, setNearbyVolunteer] = useState<User | null>(null);
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [availableVolunteers, setAvailableVolunteers] = useState<User[]>([]);
+  const [guardianMode, setGuardianMode] = useState(false);
 
   useEffect(() => {
     // Get current location on mount
@@ -491,9 +492,19 @@ const Requester = () => {
       {appState === "safe" && (
         <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-border p-4">
           <div className="container mx-auto max-w-2xl">
-            <Button variant="outline" className="w-full" size="lg">
+            <Button
+              variant={guardianMode ? "default" : "outline"}
+              className="w-full"
+              size="lg"
+              onClick={() => {
+                setGuardianMode(!guardianMode);
+                toast.success(guardianMode ? "Guardian Mode Disabled" : "Guardian Mode Enabled", {
+                  description: guardianMode ? "You are no longer in guardian mode" : "Trusted contacts will be notified of your location"
+                });
+              }}
+            >
               <Shield className="w-4 h-4 mr-2" />
-              Enable Guardian Mode
+              {guardianMode ? "Disable Guardian Mode" : "Enable Guardian Mode"}
             </Button>
           </div>
         </div>
