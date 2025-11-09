@@ -53,15 +53,37 @@ const Admin = () => {
 
   // Active requests and active volunteers (in real app, this would come from backend)
   useEffect(() => {
-    const mockRequests = requesters.slice(0, 2).map(r => ({
-      ...r,
-      requestTime: new Date(Date.now() - Math.random() * 3600000), // Random time within last hour
-      status: Math.random() > 0.5 ? 'active' : 'pending'
-    }));
-    setActiveRequests(mockRequests);
+    const fetchActiveData = async () => {
+      try {
+        // Fetch active help requests
+        const requestsRes = await fetch('https://humanet.onrender.com/api/help-requests/pending');
+        const pendingRequests = await requestsRes.json();
 
-    const activeVols = volunteers.filter(v => Math.random() > 0.5).slice(0, 2);
-    setActiveVolunteers(activeVols);
+        const activeReqs = pendingRequests.slice(0, 3).map(r => ({
+          ...r,
+          requestTime: new Date(r.created_at),
+          status: 'pending'
+        }));
+        setActiveRequests(activeReqs);
+
+        // Get active volunteers (those who are verified and available)
+        const activeVols = volunteers.filter(v =>
+          v.verified === true && v.available === true
+        );
+        setActiveVolunteers(activeVols);
+      } catch (error) {
+        console.error('Error fetching active data:', error);
+        // Fallback to empty arrays
+        setActiveRequests([]);
+        setActiveVolunteers([]);
+      }
+    };
+
+    fetchActiveData();
+
+    // Refresh active data every 5 seconds
+    const interval = setInterval(fetchActiveData, 5000);
+    return () => clearInterval(interval);
   }, [volunteers, requesters]);
 
   const handleLogout = () => {
@@ -112,7 +134,9 @@ const Admin = () => {
           </Card>
           <Card className="p-6">
             <Shield className="w-8 h-8 text-accent mb-2" />
-            <div className="text-2xl font-bold">100%</div>
+            <div className="text-2xl font-bold">
+              {volunteers.length > 0 ? Math.round((activeVolunteers.length / volunteers.length) * 100) : 0}%
+            </div>
             <div className="text-sm text-muted-foreground">Response Rate</div>
           </Card>
         </div>
@@ -147,28 +171,6 @@ const Admin = () => {
                     <Badge variant={request.status === 'active' ? 'default' : 'secondary'}>
                       {request.status}
                     </Badge>
-                    <Button size="sm" variant="outline" onClick={() => {
-                      if (request.phone) {
-                        window.open(`tel:${request.phone}`);
-                        toast.success(`Calling ${request.name}...`);
-                      } else {
-                        toast.error("Phone number not available");
-                      }
-                    }}>
-                      <Phone className="w-4 h-4 mr-1" />
-                      Call
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => {
-                      if (request.phone) {
-                        window.open(`sms:${request.phone}`);
-                        toast.success(`Messaging ${request.name}...`);
-                      } else {
-                        toast.error("Phone number not available");
-                      }
-                    }}>
-                      <MessageSquare className="w-4 h-4 mr-1" />
-                      Message
-                    </Button>
                   </div>
                 </div>
               ))}
@@ -204,28 +206,6 @@ const Admin = () => {
                     <Badge variant="default" className="bg-success text-success-foreground">
                       Active
                     </Badge>
-                    <Button size="sm" variant="outline" onClick={() => {
-                      if (volunteer.phone) {
-                        window.open(`tel:${volunteer.phone}`);
-                        toast.success(`Calling ${volunteer.name}...`);
-                      } else {
-                        toast.error("Phone number not available");
-                      }
-                    }}>
-                      <Phone className="w-4 h-4 mr-1" />
-                      Call
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => {
-                      if (volunteer.phone) {
-                        window.open(`sms:${volunteer.phone}`);
-                        toast.success(`Messaging ${volunteer.name}...`);
-                      } else {
-                        toast.error("Phone number not available");
-                      }
-                    }}>
-                      <MessageSquare className="w-4 h-4 mr-1" />
-                      Message
-                    </Button>
                   </div>
                 </div>
               ))}
@@ -287,33 +267,7 @@ const Admin = () => {
                       Verify
                     </Button>
                   )}
-                  {vol.verified && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={async () => {
-                        try {
-                          const response = await fetch(`https://humanet.onrender.com/api/users/volunteers/${vol.id}/unverify`, {
-                            method: 'POST'
-                          });
-                          if (response.ok) {
-                            toast.success(`${vol.name} unverified`);
-                            // Refresh the list
-                            const volRes = await fetch('https://humanet.onrender.com/api/users/volunteers');
-                            const volData = await volRes.json();
-                            setVolunteers(volData);
-                          } else {
-                            toast.error('Failed to unverify volunteer');
-                          }
-                        } catch (error) {
-                          console.error('Error unverifying volunteer:', error);
-                          toast.error('Failed to unverify volunteer');
-                        }
-                      }}
-                    >
-                      Unverify
-                    </Button>
-                  )}
+
                   <Button size="sm" variant="outline" onClick={() => {
                     if (vol.phone) {
                       window.open(`tel:${vol.phone}`);
