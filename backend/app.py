@@ -264,6 +264,32 @@ def cancel_help_request(request_id):
 
     return jsonify(req), 200
 
+@app.route('/api/users/volunteers/<volunteer_id>/verify', methods=['POST'])
+def verify_volunteer(volunteer_id):
+    volunteers = load_json(VOLUNTEERS_FILE)
+    volunteer = next((v for v in volunteers if v['id'] == volunteer_id), None)
+
+    if not volunteer:
+        return jsonify({'error': 'Volunteer not found'}), 404
+
+    volunteer['verified'] = True
+    save_json(VOLUNTEERS_FILE, volunteers)
+
+    return jsonify({'message': 'Volunteer verified successfully'}), 200
+
+@app.route('/api/users/volunteers/<volunteer_id>/unverify', methods=['POST'])
+def unverify_volunteer(volunteer_id):
+    volunteers = load_json(VOLUNTEERS_FILE)
+    volunteer = next((v for v in volunteers if v['id'] == volunteer_id), None)
+
+    if not volunteer:
+        return jsonify({'error': 'Volunteer not found'}), 404
+
+    volunteer['verified'] = False
+    save_json(VOLUNTEERS_FILE, volunteers)
+
+    return jsonify({'message': 'Volunteer unverified successfully'}), 200
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)
