@@ -434,7 +434,8 @@ const Requester = () => {
             <div className="space-y-4">
                 <QuickActions
                   onCall={() => {
-                    const volunteer = nearbyVolunteer;
+                    // Use the first available volunteer's phone number
+                    const volunteer = availableVolunteers[0];
                     if (volunteer?.phone) {
                       window.open(`tel:${volunteer.phone}`);
                       toast.success(`Calling ${volunteer.name}...`);
@@ -443,7 +444,7 @@ const Requester = () => {
                     }
                   }}
                   onMessage={() => {
-                    const volunteer = nearbyVolunteer;
+                    const volunteer = availableVolunteers[0];
                     if (volunteer?.phone) {
                       window.open(`sms:${volunteer.phone}`);
                       toast.success(`Messaging ${volunteer.name}...`);
