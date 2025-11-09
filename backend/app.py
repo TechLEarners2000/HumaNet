@@ -172,6 +172,92 @@ def accept_help_request(request_id):
 
     req['status'] = 'accepted'
     req['assigned_volunteer'] = volunteer_id
+    req['accepted_at'] = datetime.now().isoformat()
+
+    with open(HELP_REQUESTS_FILE, 'w') as f:
+        json.dump(help_requests, f, indent=2)
+
+    return jsonify(req), 200
+
+@app.route('/api/help-requests/<request_id>/decline', methods=['POST'])
+def decline_help_request(request_id):
+    data = request.get_json()
+    volunteer_id = data.get('volunteer_id')
+
+    HELP_REQUESTS_FILE = '../src/lib/help_requests.json'
+    if not os.path.exists(HELP_REQUESTS_FILE):
+        return jsonify({'error': 'Request not found'}), 404
+
+    with open(HELP_REQUESTS_FILE, 'r') as f:
+        help_requests = json.load(f)
+
+    req = next((r for r in help_requests if r['id'] == request_id), None)
+    if not req:
+        return jsonify({'error': 'Request not found'}), 404
+
+    if req['status'] != 'pending':
+        return jsonify({'error': 'Request already handled'}), 400
+
+    # Add volunteer to declined list
+    if 'declined_by' not in req:
+        req['declined_by'] = []
+    if volunteer_id not in req['declined_by']:
+        req['declined_by'].append(volunteer_id)
+
+    # Check if all available volunteers have declined
+    volunteers = load_json(VOLUNTEERS_FILE)
+    available_volunteers = [v for v in volunteers if v.get('verified', False) and v.get('available', True)]
+    all_declined = all(v['id'] in req['declined_by'] for v in available_volunteers)
+
+    if all_declined:
+        req['status'] = 'cancelled'
+        req['cancelled_at'] = datetime.now().isoformat()
+        req['cancel_reason'] = 'All volunteers declined'
+
+    with open(HELP_REQUESTS_FILE, 'w') as f:
+        json.dump(help_requests, f, indent=2)
+
+    return jsonify(req), 200
+
+@app.route('/api/help-requests/<request_id>/complete', methods=['POST'])
+def complete_help_request(request_id):
+    HELP_REQUESTS_FILE = '../src/lib/help_requests.json'
+    if not os.path.exists(HELP_REQUESTS_FILE):
+        return jsonify({'error': 'Request not found'}), 404
+
+    with open(HELP_REQUESTS_FILE, 'r') as f:
+        help_requests = json.load(f)
+
+    req = next((r for r in help_requests if r['id'] == request_id), None)
+    if not req:
+        return jsonify({'error': 'Request not found'}), 404
+
+    if req['status'] != 'accepted':
+        return jsonify({'error': 'Request not accepted yet'}), 400
+
+    req['status'] = 'completed'
+    req['completed_at'] = datetime.now().isoformat()
+
+    with open(HELP_REQUESTS_FILE, 'w') as f:
+        json.dump(help_requests, f, indent=2)
+
+    return jsonify(req), 200
+
+@app.route('/api/help-requests/<request_id>/cancel', methods=['POST'])
+def cancel_help_request(request_id):
+    HELP_REQUESTS_FILE = '../src/lib/help_requests.json'
+    if not os.path.exists(HELP_REQUESTS_FILE):
+        return jsonify({'error': 'Request not found'}), 404
+
+    with open(HELP_REQUESTS_FILE, 'r') as f:
+        help_requests = json.load(f)
+
+    req = next((r for r in help_requests if r['id'] == request_id), None)
+    if not req:
+        return jsonify({'error': 'Request not found'}), 404
+
+    req['status'] = 'cancelled'
+    req['cancelled_at'] = datetime.now().isoformat()
 
     with open(HELP_REQUESTS_FILE, 'w') as f:
         json.dump(help_requests, f, indent=2)
@@ -179,4 +265,5 @@ def accept_help_request(request_id):
     return jsonify(req), 200
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
