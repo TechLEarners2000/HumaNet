@@ -45,6 +45,10 @@ const Admin = () => {
       }
     };
     fetchUsers();
+
+    // Auto-refresh every 5 seconds
+    const interval = setInterval(fetchUsers, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   // Active requests and active volunteers (in real app, this would come from backend)
@@ -256,6 +260,60 @@ const Admin = () => {
                   <div className={`text-xs px-2 py-1 rounded ${vol.verified ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning'}`}>
                     {vol.verified ? 'Verified' : 'Pending'}
                   </div>
+                  {!vol.verified && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        try {
+                          const response = await fetch(`https://humanet.onrender.com/api/users/volunteers/${vol.id}/verify`, {
+                            method: 'POST'
+                          });
+                          if (response.ok) {
+                            toast.success(`${vol.name} verified successfully`);
+                            // Refresh the list
+                            const volRes = await fetch('https://humanet.onrender.com/api/users/volunteers');
+                            const volData = await volRes.json();
+                            setVolunteers(volData);
+                          } else {
+                            toast.error('Failed to verify volunteer');
+                          }
+                        } catch (error) {
+                          console.error('Error verifying volunteer:', error);
+                          toast.error('Failed to verify volunteer');
+                        }
+                      }}
+                    >
+                      Verify
+                    </Button>
+                  )}
+                  {vol.verified && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        try {
+                          const response = await fetch(`https://humanet.onrender.com/api/users/volunteers/${vol.id}/unverify`, {
+                            method: 'POST'
+                          });
+                          if (response.ok) {
+                            toast.success(`${vol.name} unverified`);
+                            // Refresh the list
+                            const volRes = await fetch('https://humanet.onrender.com/api/users/volunteers');
+                            const volData = await volRes.json();
+                            setVolunteers(volData);
+                          } else {
+                            toast.error('Failed to unverify volunteer');
+                          }
+                        } catch (error) {
+                          console.error('Error unverifying volunteer:', error);
+                          toast.error('Failed to unverify volunteer');
+                        }
+                      }}
+                    >
+                      Unverify
+                    </Button>
+                  )}
                   <Button size="sm" variant="outline" onClick={() => {
                     if (vol.phone) {
                       window.open(`tel:${vol.phone}`);
