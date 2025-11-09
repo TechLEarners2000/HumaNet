@@ -33,8 +33,8 @@ const Admin = () => {
     const fetchUsers = async () => {
       try {
         const [volRes, reqRes] = await Promise.all([
-          fetch('http://localhost:5000/api/users/volunteers'),
-          fetch('http://localhost:5000/api/users/requesters')
+          fetch('https://humanet.onrender.com/api/users/volunteers'),
+          fetch('https://humanet.onrender.com/api/users/requesters')
         ]);
         const volData = await volRes.json();
         const reqData = await reqRes.json();
@@ -56,10 +56,9 @@ const Admin = () => {
     }));
     setActiveRequests(mockRequests);
 
-    // Simulate active volunteers (those currently helping)
     const activeVols = volunteers.filter(v => Math.random() > 0.5).slice(0, 2);
     setActiveVolunteers(activeVols);
-  }, []); // Remove dependencies to prevent re-renders
+  }, [volunteers, requesters]);
 
   const handleLogout = () => {
     logout();
