@@ -85,14 +85,18 @@ const Volunteer = () => {
     }, 5000);
   };
 
-  const handleDecline = () => {
+  const handleDecline = async () => {
+    // If there's a current request being handled, we should decline it on the backend
+    // For now, just reset state and show toast
     setState("idle");
     toast.info("Request Declined", {
       description: "Looking for other volunteers nearby",
     });
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
+    // In a real app, we would have the request ID from the current session
+    // For now, we'll just reset state
     setState("idle");
     toast.success("Session Completed", {
       description: "Thank you for helping!",
@@ -377,9 +381,24 @@ const Volunteer = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => {
-                          setPendingRequests(prev => prev.filter(r => r.id !== request.id));
-                          toast.info("Request declined");
+                        onClick={async () => {
+                          try {
+                            const response = await fetch(`https://humanet.onrender.com/api/help-requests/${request.id}/decline`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ volunteer_id: user.id })
+                            });
+                            if (response.ok) {
+                              // Remove from local pending requests list
+                              setPendingRequests(prev => prev.filter(r => r.id !== request.id));
+                              toast.info("Request declined");
+                            } else {
+                              toast.error("Failed to decline request");
+                            }
+                          } catch (error) {
+                            console.error('Error declining request:', error);
+                            toast.error("Failed to decline request");
+                          }
                         }}
                       >
                         Decline
