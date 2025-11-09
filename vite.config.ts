@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    allowedHosts: mode === 'development' ? ['.onrender.com'] : undefined,
+     allowedHosts: ["humanet-1.onrender.com"]
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
