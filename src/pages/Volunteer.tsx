@@ -42,7 +42,7 @@ const Volunteer = () => {
     // Poll for pending help requests
     const pollRequests = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/help-requests/pending');
+        const response = await fetch('https://humanet.onrender.com/api/help-requests/pending');
         const requests = await response.json();
         setPendingRequests(requests);
       } catch (error) {
@@ -353,7 +353,7 @@ const Volunteer = () => {
                         size="sm"
                         onClick={async () => {
                           try {
-                            const response = await fetch(`http://localhost:5000/api/help-requests/${request.id}/accept`, {
+                            const response = await fetch(`https://humanet.onrender.com/api/help-requests/${request.id}/accept`, {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({ volunteer_id: user.id })
@@ -391,24 +391,7 @@ const Volunteer = () => {
             </div>
           )}
 
-          {/* Simulate request button for demo */}
-          {state === "idle" && pendingRequests.length === 0 && (
-            <div className="mt-8 p-4 bg-muted rounded-lg">
-              <p className="text-xs text-muted-foreground mb-2 text-center">
-                Demo Mode
-              </p>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  setState("request-received");
-                  toast.info("New help request received!");
-                }}
-              >
-                Simulate Incoming Request
-              </Button>
-            </div>
-          )}
+
         </div>
       </main>
     </div>
