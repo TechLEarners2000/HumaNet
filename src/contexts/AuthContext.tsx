@@ -12,7 +12,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // API functions
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://humanet.onrender.com/api';
 
 const apiLogin = async (email: string, password: string, location?: { lat: number; lng: number }): Promise<User | null> => {
   try {
