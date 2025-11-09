@@ -44,7 +44,12 @@ const Volunteer = () => {
       try {
         const response = await fetch('https://humanet.onrender.com/api/help-requests/pending');
         const requests = await response.json();
-        setPendingRequests(requests);
+        // Filter out requests that have been declined by this volunteer
+        const filteredRequests = requests.filter((req: any) => {
+          if (!req.declined_by) return true;
+          return !req.declined_by.includes(user.id);
+        });
+        setPendingRequests(filteredRequests);
       } catch (error) {
         console.error('Error fetching requests:', error);
       }
@@ -125,13 +130,6 @@ const Volunteer = () => {
               <Badge variant={isOnline ? "default" : "secondary"}>
                 {isOnline ? "Online" : "Offline"}
               </Badge>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsOnline(!isOnline)}
-              >
-                {isOnline ? "Go Offline" : "Go Online"}
-              </Button>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="w-4 h-4" />
               </Button>
