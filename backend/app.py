@@ -238,6 +238,15 @@ def complete_help_request(request_id):
     req['status'] = 'completed'
     req['completed_at'] = datetime.now().isoformat()
 
+    # Update volunteer rating if assigned_volunteer exists
+    if req.get('assigned_volunteer'):
+        volunteers = load_json(VOLUNTEERS_FILE)
+        volunteer = next((v for v in volunteers if v['id'] == req['assigned_volunteer']), None)
+        if volunteer:
+            # Simple rating increase (in real app, this would be based on user feedback)
+            volunteer['rating'] = min(5.0, volunteer.get('rating', 0) + 0.1)
+            save_json(VOLUNTEERS_FILE, volunteers)
+
     with open(HELP_REQUESTS_FILE, 'w') as f:
         json.dump(help_requests, f, indent=2)
 
