@@ -106,6 +106,11 @@ const Volunteer = () => {
     toast.success("Session Completed", {
       description: "Thank you for helping!",
     });
+
+    // Redirect to home page after a short delay to show the completion message
+    setTimeout(() => {
+      navigate('/');
+    }, 2000);
   };
 
   const handleLogout = () => {
@@ -260,7 +265,8 @@ const Volunteer = () => {
 
                 <QuickActions
                   onCall={() => {
-                    // In a real app, this would get the requester's phone from the session
+                    // Get requester phone from the current request
+                    // In a real app, this would be stored in state when accepting
                     const requesterPhone = "+1234567890"; // Mock phone for demo
                     window.open(`tel:${requesterPhone}`);
                     toast.success("Calling requester...");
@@ -268,7 +274,7 @@ const Volunteer = () => {
                   onMessage={() => {
                     const requesterPhone = "+1234567890"; // Mock phone for demo
                     window.open(`sms:${requesterPhone}`);
-                    toast.success("Messaging requester...");
+                    toast.success("Opening message app...");
                   }}
                   onShareLocation={() => toast.success("Sharing your live location")}
                 />
@@ -303,8 +309,18 @@ const Volunteer = () => {
                 </div>
 
                 <QuickActions
-                  onCall={() => toast.info("Voice call active")}
-                  onMessage={() => toast.info("Opening chat...")}
+                  onCall={() => {
+                    // In a real app, get requester phone from the accepted request
+                    // For now, use a mock phone number
+                    const requesterPhone = "+1234567890"; // Mock phone for demo
+                    window.open(`tel:${requesterPhone}`);
+                    toast.success("Calling requester...");
+                  }}
+                  onMessage={() => {
+                    const requesterPhone = "+1234567890"; // Mock phone for demo
+                    window.open(`sms:${requesterPhone}`);
+                    toast.success("Opening message app...");
+                  }}
                   onShareLocation={() => toast.success("Location shared")}
                   onReport={() => toast.info("Opening report form...")}
                 />
