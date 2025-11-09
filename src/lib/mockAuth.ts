@@ -87,7 +87,7 @@ const loadUsersFromStorage = (): User[] => {
     ...volunteersData.map((v: any) => ({
       id: v.id,
       email: v.email,
-      password: 'vol123',
+      password: v.password || 'vol123',
       role: 'volunteer' as UserRole,
       name: v.name,
       phone: v.phone,
@@ -131,7 +131,7 @@ const loadUsersFromStorage = (): User[] => {
     ...storedVolunteers.map((v: any) => ({
       id: v.id,
       email: v.email,
-      password: 'vol123',
+      password: v.password || 'vol123',
       role: 'volunteer' as UserRole,
       name: v.name,
       phone: v.phone,
