@@ -200,7 +200,9 @@ const Requester = () => {
     });
   };
 
-  const handleEndSession = () => {
+  const handleEndSession = async () => {
+    // In a real app, we would complete the help request on the backend
+    // For now, just reset state
     setAppState("safe");
     toast.success("Session Ended", {
       description: "Thank you for using our service",
