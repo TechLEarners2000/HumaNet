@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Haversine formula for distance calculation
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -45,9 +46,10 @@ const Requester = () => {
         };
         setCurrentLocation(location);
 
-        // Fetch available volunteers
+          // Fetch available volunteers
         try {
-          const volResponse = await fetch('http://localhost:5000/api/users/volunteers');
+          const API_BASE = 'https://humanet.onrender.com/api';
+          const volResponse = await fetch(`${API_BASE}/users/volunteers`);
           const allVolunteers = await volResponse.json();
           const volunteers = allVolunteers.filter((v: any) => {
             if (!v.location) return false;
@@ -103,7 +105,8 @@ const Requester = () => {
 
         try {
           // Create help request
-          const requestResponse = await fetch('http://localhost:5000/api/help-requests', {
+          const API_BASE = 'https://humanet.onrender.com/api';
+          const requestResponse = await fetch(`${API_BASE}/help-requests`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -121,7 +124,8 @@ const Requester = () => {
             // Poll for accepted requests
             const pollForAcceptance = async () => {
               try {
-                const pendingResponse = await fetch('http://localhost:5000/api/help-requests/pending');
+                const API_BASE = 'https://humanet.onrender.com/api';
+                const pendingResponse = await fetch(`${API_BASE}/help-requests/pending`);
                 const pendingRequests = await pendingResponse.json();
                 const myRequest = pendingRequests.find((r: any) => r.id === helpRequest.id);
 
@@ -145,7 +149,8 @@ const Requester = () => {
             setTimeout(pollForAcceptance, 2000);
 
             // Also show available volunteers for direct contact
-            const volResponse = await fetch('http://localhost:5000/api/users/volunteers');
+            const API_BASE = 'https://humanet.onrender.com/api';
+            const volResponse = await fetch(`${API_BASE}/users/volunteers`);
             const allVolunteers = await volResponse.json();
             const volunteers = allVolunteers.filter((v: any) => {
               if (!v.location) return false;
